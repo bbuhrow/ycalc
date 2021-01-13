@@ -150,7 +150,7 @@ int main(int argc, char** argv)
                 }
 
                 firstline = 1;
-                process_expression(input_str.s, NULL);
+                process_expression(input_str.s, NULL, 0, 1);
                 sClear(&input_str);
             }
 
@@ -229,7 +229,7 @@ int main(int argc, char** argv)
 
                 free(input_line);
                 firstline = 1;
-                process_expression(input_str.s, NULL);
+                process_expression(input_str.s, NULL, 0, 1);
                 sClear(&input_str);
             }
         }
@@ -242,7 +242,7 @@ int main(int argc, char** argv)
         int i;
         for (i = 1; i < argc; i++)
         {
-            process_expression(argv[i], NULL);
+            process_expression(argv[i], NULL, 0, 1);
         }
     }
     

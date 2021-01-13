@@ -110,7 +110,7 @@ char** tokenize(char* in, int* token_types, int* num_tokens);
 int get_el_type2(char s);
 int is_new_token(int el_type, int el_type2);
 int invalid_dest(char* dest);
-void calc_with_assignment(str_t* in, meta_t* metadata);
+void calc_with_assignment(str_t* in, meta_t* metadata, int force_quiet);
 
 #ifndef _MSC_VER
 #define strtok_s strtok_r
@@ -1423,14 +1423,22 @@ void get_expression(char* in, str_t* out)
     free(tmp2);
 }
 
-int process_expression(char* input_exp, meta_t* metadata)
+char* process_expression(char* input_exp, meta_t* metadata,
+    int force_quiet, int no_convert_result)
 {
+    // process the expression in input_exp, which can be multi-line.
+    // force_quiet will suppress all output.
+    // no_convert_result will skip any conversion of the result back
+    // to a string (e.g., for scripts that don't need to display 
+    // intermediate results).
     str_t str;
     str_t* out;
-    char* ptr;
     int num;
     int i;
+    mpz_t tmp;
+    char* outstr = NULL;
 
+    mpz_init(tmp);
     sInit(&str);
     toStr(input_exp, &str);
 
@@ -1450,16 +1458,26 @@ int process_expression(char* input_exp, meta_t* metadata)
 
     for (i = 0; i < num; i++)
     {
-        calc_with_assignment(&out[i], metadata);
+        calc_with_assignment(&out[i], metadata, force_quiet);
         sFree(&out[i]);
     }
 
+    // return the last result.  Return a new string
+    // since the input string may not be big enough
+    // to hold the result.
+    if (!no_convert_result)
+    {
+        get_uvar("ans", tmp);
+        outstr = mpz_get_str(NULL, OBASE, tmp);
+    }
+
+    mpz_clear(tmp);
     sFree(&str);
     free(out);
-    return 0;
+    return outstr;
 }
 
-void calc_with_assignment(str_t* in, meta_t* metadata)
+void calc_with_assignment(str_t* in, meta_t* metadata, int force_quiet)
 {
     char* ptr;
     char varname[80];
@@ -1509,7 +1527,7 @@ void calc_with_assignment(str_t* in, meta_t* metadata)
                 new_uvar(varname, tmp);
             }
 
-            if (nooutput == 0)
+            if ((nooutput == 0) && (force_quiet == 0))
             {
                 if (OBASE == DEC)
                 {
