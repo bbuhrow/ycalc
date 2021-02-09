@@ -2020,7 +2020,6 @@ int feval(int funcnum, int nargs, meta_t *metadata)
 	uint64_t n64;
 	uint32_t j,k;
 	double t;
-	struct timeval tstart, tstop;
 	uint64_t lower, upper, inc, count;
 
 	mpz_init(mp1);

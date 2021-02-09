@@ -35,8 +35,15 @@ SOFTWARE.
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include <unistd.h> //isatty
 #include "calc.h"
+
+#if defined(_MSC_VER)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <io.h>
+#else
+#include <unistd.h> //isatty
+#endif
 
 #if defined(__unix__)
 #include <termios.h>
@@ -91,7 +98,7 @@ int main(int argc, char** argv)
         // with no arguments to the program, enter an interactive loop
         // to process commands
         uint32_t insize = GSTR_MAXSIZE;
-        char* input_exp, * ptr, * indup, * input_line;
+        char* input_exp, * indup, * input_line;
         str_t input_str;
         int firstline = 1;
 
@@ -494,9 +501,9 @@ char* get_input(char* input_exp, uint32_t* insize)
 
 char* process_batchline(int* code)
 {
-    int nChars, j, i;
-    char* line, tmpline[GSTR_MAXSIZE], * ptr, * ptr2;
-    FILE* batchfile, * tmpfile;
+    int nChars, j;
+    char* line, tmpline[GSTR_MAXSIZE], * ptr;
+    FILE* batchfile;
 
     batchfile = stdin;
 
@@ -516,7 +523,7 @@ char* process_batchline(int* code)
             // stop if we didn't read anything
             if (feof(batchfile))
             {
-                printf("eof; done processing batchfile\n");
+                //printf("eof; done processing batchfile\n");
                 fclose(batchfile);
                 *code = 1;
                 free(line);
