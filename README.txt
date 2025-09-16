@@ -13,4 +13,15 @@ Demo program usage:
     2) If string arguments on the command line, run calc on them and return.
     3) If redirect or pipe is detected, ignore any command line arguments, run
         calc on the lines in the file, and return;
-    
+
+Algorithm details:
+1st tokenizes the string.
+a token in this context is one of the following things:
+  a number, possibly including a base prefix (0x, 0d, 0b, etc)
+  a variable name
+  a function name
+  an operator string (includes parens, commas)
+
+Then runs Dijkstra's shunting algorithm to create a postfix expression from the tokens.
+
+Finally evaluates the postfix expression.
